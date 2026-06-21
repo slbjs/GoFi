@@ -46,7 +46,7 @@ async def get_best_server():
 
 async def upload_to_gofile(file_path, file_name):
     server = await get_best_server()
-    url = "https://" + server + ".gofile.io/uploadFile"
+    url = "https://" + server + ".gofile.io/contents/uploadfile"
     headers = {"Authorization": "Bearer " + GOFILE_API_KEY}
     async with aiohttp.ClientSession() as session:
         with open(file_path, "rb") as f:
@@ -55,10 +55,18 @@ async def upload_to_gofile(file_path, file_name):
             async with session.post(url, data=form, headers=headers) as resp:
                 result = await resp.json()
     if result.get("status") == "ok":
-        data = result["data"]
-        data["_server"] = server
-        return data
+        return result["data"]
     raise RuntimeError("Gofile upload failed: " + str(result))
+
+async def create_direct_link(file_id):
+    url = "https://api.gofile.io/contents/" + file_id + "/directlinks"
+    headers = {"Authorization": "Bearer " + GOFILE_API_KEY, "Content-Type": "application/json"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json={}, headers=headers) as resp:
+            result = await resp.json()
+    if result.get("status") == "ok":
+        return result["data"].get("url", "N/A")
+    return "N/A"
 
 @app.on_message(filters.command("start") & filters.private)
 async def start(_, message):
@@ -143,16 +151,18 @@ async def handle_file(_, message):
 
     os.remove(file_path)
 
-    link        = data.get("downloadPage", "N/A")
-    file_id     = data.get("fileId", "N/A")
-    server      = data.get("_server", "")
-    direct_link = "https://" + server + ".gofile.io/download/direct/" + file_id + "/" + file_name if server else "N/A"
+    file_id   = data.get("fileId", "")
+    page_link = data.get("downloadPage", "N/A")
+
+    await status.edit_text("🔗 Getting direct link...")
+
+    direct_link = await create_direct_link(file_id) if file_id else "N/A"
 
     await status.edit_text(
         "✅ **Upload Successful!**\n\n"
         "📄 **File:** " + file_name + "\n"
         "📦 **Size:** " + human_readable_size(file_size) + "\n"
-        "🔗 **Page:** " + link + "\n"
+        "🔗 **Page:** " + page_link + "\n"
         "⬇️ **Direct:** " + direct_link + "\n"
         "🆔 **File ID:** " + file_id,
         disable_web_page_preview=True
