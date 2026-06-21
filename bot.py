@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 #  CONFIG — edit these values
 # ══════════════════════════════════════════════════════════════════════════════
 
-API_ID         = 12345678                          # from https://my.telegram.org
-API_HASH       = "your_api_hash_here"              # from https://my.telegram.org
-BOT_TOKEN      = "your_bot_token_here"             # from @BotFather
+API_ID         = 29025963                          # from https://my.telegram.org
+API_HASH       = "c6e5ae97263b00062c72f13649f325a4"              # from https://my.telegram.org
+BOT_TOKEN      = "7861537839:AAF7acuDMLkz-hoz4shl6j6jUbd5EOukQwg"             # from @BotFather
 GOFILE_API_KEY = "i4kO4vImcAHJDanHq5E8x2ZqA8eaQh8X"
 
 # ══════════════════════════════════════════════════════════════════════════════
